@@ -1,0 +1,103 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: "Chakra Petch";
+    background-image: url('https://i.pinimg.com/736x/32/fa/a1/32faa1b842551389244fa84b94541a6c.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+.container {
+    padding: 20px;
+    width: 100%;
+    max-width: 800px;
+}
+
+.welcome-card {
+    background: #fff;
+    padding: 4rem;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    position: relative;
+    border: 5px solid #8b7355;
+}
+
+h1 {
+    color: #4a3c2c;
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    line-height: 1.4;
+}
+
+h2 {
+    color: #fffffe;
+    background: #4a3c2c;
+    font-size: 2.2rem; 
+    border-radius: 25px;
+    margin-bottom: 2rem;
+    line-height: 1.4;
+}
+
+p {
+    color: #666;
+    font-size: 1.2rem;
+    margin-bottom: 3rem;
+}
+
+.decorate {
+    width: 150px;
+    height: 30px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20'%3E%3Cpath fill='none' stroke='%238b7355' stroke-width='2' d='M0,10 C30,20 70,0 100,10'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    margin: 2rem auto;
+}
+
+.button-group {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+}
+
+.btn {
+    display: inline-block;
+    padding: 1rem 2rem;
+    background: #8b7355;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+    border: 2px solid #8b7355;
+}
+
+.btn:hover {
+    background: #fff;
+    color: #8b7355;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(139, 115, 85, 0.3);
+}
+
+@media (max-width: 600px) {
+    .welcome-card {
+        padding: 2rem;
+    }
+    h1 {
+        font-size: 2rem;
+    }
+    .button-group {
+        flex-direction: column;
+    }
+    .btn {
+        width: 100%;
+    }
+}
