@@ -21,7 +21,7 @@
         
         <div class="text-center mb-5 mt-4">
             <h2 class="display-6 fw-bold text-dark">Berge Equilibrium</h2>
-            <p class="text-muted">การคำนวณจุดสมดุลเบิร์จ</p>
+            <p class="text-dark fw-bold">การคำนวณจุดสมดุลเบิร์จ</p>
         </div>
 
         <?php
@@ -71,9 +71,10 @@
         ?>
 
         <div class="card-custom">
-            <div class="alert alert-light border mb-4">
+            <div class="alert alert-light border border-dark mb-4 text-dark">
                 <i class="bi bi-info-circle-fill text-primary"></i> 
-                <strong>คำแนะนำ:</strong> คัดลอกข้อมูลตัวเลขจาก Excel (เฉพาะตัวเลข) มาวางได้ทันที ข้อมูลจะจัดรูปแบบอัตโนมัติ
+                <strong>คำแนะนำ:</strong> คัดลอกข้อมูลตัวเลขจาก Excel (เฉพาะตัวเลข) มาวางได้ทันที ข้อมูลจะจัดรูปแบบอัตโนมัติ<br>
+                <span class="text-danger small fw-bold">* หมายเหตุ: โปรแกรมรองรับเฉพาะตัวเลขจำนวนเต็มและทศนิยมเท่านั้น (ไม่รองรับการใส่เศษส่วนและค่าติดรูท)</span>
             </div>
 
             <form method="post" action="">
@@ -111,19 +112,19 @@
                 <div class="row mb-5 g-3">
                     <div class="col-md-4">
                         <div class="result-box">
-                            <div class="text-muted small text-uppercase mb-2">Objective Function (F*)</div>
-                            <div class="result-value text-success"><?php echo number_format($result['F'], 6); ?></div>
+                            <div class="text-dark fw-bold small text-uppercase mb-2">Objective Function (F*)</div>
+                            <div class="result-value text-dark"><?php echo number_format($result['F'], 6); ?></div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="result-box">
-                            <div class="text-muted small text-uppercase mb-2">Payoff Bound (p*)</div>
+                            <div class="text-dark fw-bold small text-uppercase mb-2">Payoff Bound (p*)</div>
                             <div class="result-value text-dark"><?php echo number_format($result['p'], 4); ?></div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="result-box">
-                            <div class="text-muted small text-uppercase mb-2">Payoff Bound (q*)</div>
+                            <div class="text-dark fw-bold small text-uppercase mb-2">Payoff Bound (q*)</div>
                             <div class="result-value text-dark"><?php echo number_format($result['q'], 4); ?></div>
                         </div>
                     </div>
@@ -131,7 +132,7 @@
 
                 <div class="row g-4">
                     <div class="col-md-6">
-                        <h5 class="mb-3 text-primary">กลยุทธ์ผู้เล่นที่ 1 (Row Player)</h5>
+                        <h5 class="mb-3 text-dark">กลยุทธ์ผู้เล่นที่ 1 (Row Player)</h5>
                         <div class="table-responsive">
                             <table class="table table-bordered table-hover table-academic mb-0">
                                 <thead class="table-light">
@@ -143,8 +144,8 @@
                                 <tbody>
                                     <?php foreach ($result['x'] as $idx => $val): ?>
                                     <tr>
-                                        <td class="text-center fw-bold bg-light"><?php echo $idx + 1; ?></td>
-                                        <td class="text-end pe-4 <?php echo ($val > 0.0001) ? 'fw-bold text-primary' : 'text-muted'; ?>">
+                                        <td class="text-center fw-bold bg-light border-dark text-dark"><?php echo $idx + 1; ?></td>
+                                        <td class="text-end pe-4 <?php echo ($val > 0.0001) ? 'fw-bold text-dark' : 'text-dark'; ?>">
                                             <?php echo number_format($val, 6); ?>
                                         </td>
                                     </tr>
@@ -155,7 +156,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <h5 class="mb-3 text-primary">กลยุทธ์ผู้เล่นที่ 2 (Column Player)</h5>
+                        <h5 class="mb-3 text-dark">กลยุทธ์ผู้เล่นที่ 2 (Column Player)</h5>
                         <div class="table-responsive">
                             <table class="table table-bordered table-hover table-academic mb-0">
                                 <thead class="table-light">
@@ -167,8 +168,8 @@
                                 <tbody>
                                     <?php foreach ($result['y'] as $idx => $val): ?>
                                     <tr>
-                                        <td class="text-center fw-bold bg-light"><?php echo $idx + 1; ?></td>
-                                        <td class="text-end pe-4 <?php echo ($val > 0.0001) ? 'fw-bold text-primary' : 'text-muted'; ?>">
+                                        <td class="text-center fw-bold bg-light border-dark text-dark"><?php echo $idx + 1; ?></td>
+                                        <td class="text-end pe-4 <?php echo ($val > 0.0001) ? 'fw-bold text-dark' : 'text-dark'; ?>">
                                             <?php echo number_format($val, 6); ?>
                                         </td>
                                     </tr>
