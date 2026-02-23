@@ -10,7 +10,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
         <div class="container-fluid max-width-1000" style="max-width: 1000px; margin: 0 auto;">
-            <a class="navbar-brand fw-bold text-primary" href="index.php">Game Theory Solver</a>
+            <a class="navbar-brand fw-bold text-dark" href="index.php">Game Theory Solver</a>
             <div class="d-flex">
                 <a href="index.php" class="btn btn-outline-secondary btn-sm">กลับหน้าหลัก</a>
             </div>
@@ -113,19 +113,30 @@
                     <div class="col-md-4">
                         <div class="result-box">
                             <div class="text-dark fw-bold small text-uppercase mb-2">Objective Function (F*)</div>
-                            <div class="result-value text-dark"><?php echo number_format($result['F'], 6); ?></div>
+                            <div class="result-value text-dark">
+                                <?php 
+                                $parts = explode('e', sprintf("%.3e", $result['F']));
+                                $exp = (int)$parts[1]; // แปลงเลขชี้กำลังเป็นจำนวนเต็ม
+                                
+                                if ($exp == 0) {
+                                    echo $parts[0]; // หากเลขชี้กำลังเป็น 0 ให้แสดงแค่ตัวเลขปกติ
+                                } else {
+                                    echo $parts[0] . ' &times; 10<sup>' . $exp . '</sup>'; 
+                                }
+                                ?>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="result-box">
                             <div class="text-dark fw-bold small text-uppercase mb-2">Payoff Bound (p*)</div>
-                            <div class="result-value text-dark"><?php echo number_format($result['p'], 4); ?></div>
+                            <div class="result-value text-dark"><?php echo number_format($result['p'], 3); ?></div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="result-box">
                             <div class="text-dark fw-bold small text-uppercase mb-2">Payoff Bound (q*)</div>
-                            <div class="result-value text-dark"><?php echo number_format($result['q'], 4); ?></div>
+                            <div class="result-value text-dark"><?php echo number_format($result['q'], 3); ?></div>
                         </div>
                     </div>
                 </div>
@@ -146,7 +157,7 @@
                                     <tr>
                                         <td class="text-center fw-bold bg-light border-dark text-dark"><?php echo $idx + 1; ?></td>
                                         <td class="text-end pe-4 <?php echo ($val > 0.0001) ? 'fw-bold text-dark' : 'text-dark'; ?>">
-                                            <?php echo number_format($val, 6); ?>
+                                            <?php echo number_format($val, 3); ?>
                                         </td>
                                     </tr>
                                     <?php endforeach; ?>
@@ -170,7 +181,7 @@
                                     <tr>
                                         <td class="text-center fw-bold bg-light border-dark text-dark"><?php echo $idx + 1; ?></td>
                                         <td class="text-end pe-4 <?php echo ($val > 0.0001) ? 'fw-bold text-dark' : 'text-dark'; ?>">
-                                            <?php echo number_format($val, 6); ?>
+                                            <?php echo number_format($val, 3); ?>
                                         </td>
                                     </tr>
                                     <?php endforeach; ?>
