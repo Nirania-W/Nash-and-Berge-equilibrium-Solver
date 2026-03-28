@@ -130,14 +130,22 @@ def algorithm_2_global_search(A, B):
     
     # print(f"Gamma Range: [{gamma_min:.2f}, {gamma_max:.2f}]")
 
+    # เก็บรายการ Local Solutions ทั้งหมดที่พบ
+    local_solutions = []
+    global_source_idx = 0
+
     # Step 1: Initial Local Search
     xk, yk, pk, qk, zeta_k = algorithm_1_local_search(A, B, y0)
+    local_solutions.append({
+        'x': xk.copy(), 'y': yk.copy(), 'p': float(pk), 'q': float(qk), 'F': float(zeta_k),
+        'source': 'Initial Search', 'gamma': float(gamma)
+    })
     # print(f" -> Initial Local Trap: F = {zeta_k:.6f}")
 
     while True:
         # Step 2: Global Optimality Check
         if zeta_k >= -epsilon:
-            return xk, yk, pk, qk, zeta_k
+            return xk, yk, pk, qk, zeta_k, local_solutions, global_source_idx
         
         if s >= N: s = 0 
         
@@ -155,7 +163,7 @@ def algorithm_2_global_search(A, B):
                     s = 0; 
                     # print(f" [Expand] Gamma -> {gamma:.2f}")
                 else: 
-                    return xk, yk, pk, qk, zeta_k
+                    return xk, yk, pk, qk, zeta_k, local_solutions, global_source_idx
             continue
 
         t = np.sqrt(target / val_phi1)
@@ -173,22 +181,28 @@ def algorithm_2_global_search(A, B):
                     s = 0; 
                     # print(f" [Expand] Gamma -> {gamma:.2f}")
                 else: 
-                    return xk, yk, pk, qk, zeta_k
+                    return xk, yk, pk, qk, zeta_k, local_solutions, global_source_idx
             continue
             
         # Step 5: Local Search from Jump Point
         x_hat, y_hat, p_hat, q_hat, F_hat = algorithm_1_local_search(A, B, v_bar)
+        local_solutions.append({
+            'x': x_hat.copy(), 'y': y_hat.copy(), 'p': float(p_hat), 'q': float(q_hat), 'F': float(F_hat),
+            'source': f'Direction s={s}', 'gamma': float(gamma)
+        })
         
         # Step 6: Check Global Optimality
         if F_hat >= -epsilon:
             # print(f">>> STOP (Step 6): Found Global Solution! F = {F_hat:.6f}")
-            return x_hat, y_hat, p_hat, q_hat, F_hat
+            global_source_idx = len(local_solutions) - 1
+            return x_hat, y_hat, p_hat, q_hat, F_hat, local_solutions, global_source_idx
         
         # Step 9: Improvement
         if F_hat > zeta_k + epsilon:
             # print(f" **IMPROVEMENT {zeta_k:.6f} -> {F_hat:.6f}")
             xk, yk, pk, qk = x_hat, y_hat, p_hat, q_hat
             zeta_k = F_hat
+            global_source_idx = len(local_solutions) - 1
             s = 0
             gamma = gamma_min
             continue
@@ -199,14 +213,54 @@ def algorithm_2_global_search(A, B):
             if gamma < gamma_max:
                 gamma += delta_gamma;
                 s = 0
-                # print(f" [Expand] Gamma -> {gamma:.2f}")
-            # else:
-                # print(f">>> STOP (Step 10): Exhausted. Best F = {zeta_k:.6f}")
-    return xk, yk, pk, qk, zeta_k
+            else:
+                return xk, yk, pk, qk, zeta_k, local_solutions, global_source_idx
+    return xk, yk, pk, qk, zeta_k, local_solutions, global_source_idx
 
 # ส่วนรับข้อมูลจาก PHP และประมวลผล
+import re
+import math
+
+def parse_number(val_str):
+    """แปลงค่าตัวเลข รองรับจำนวนเต็ม ทศนิยม เศษส่วน และค่ารูท
+    ตัวอย่าง: 1, 0.5, 1/2, -3/4, sqrt(2), √3, 2sqrt(5), -√2, sqrt(2)/3, 1/sqrt(2)
+    """
+    val_str = val_str.strip()
+    
+    # ถ้ามีค่ารูท (sqrt หรือ √)
+    val_str_check = val_str.replace('√', 'sqrt')
+    if 'sqrt' in val_str_check:
+        expr = val_str_check
+        # แทรก * ระหว่างตัวเลขกับ sqrt เช่น 2sqrt(3) → 2*sqrt(3)
+        expr = re.sub(r'(\d)\s*sqrt', r'\1*sqrt', expr)
+        # แทรก * ระหว่าง ) กับตัวเลข เช่น sqrt(2)3 → sqrt(2)*3
+        expr = re.sub(r'\)\s*(\d)', r')*\1', expr)
+        # รองรับ √N แบบไม่มีวงเล็บ เช่น √2 → sqrt(2)
+        expr = re.sub(r'sqrt(\d+\.?\d*)', r'sqrt(\1)', expr)
+        try:
+            allowed = {"sqrt": math.sqrt, "abs": abs, "__builtins__": {}}
+            result = float(eval(expr, allowed))
+            return result
+        except Exception:
+            raise ValueError(f"รูปแบบรูทไม่ถูกต้อง: {val_str}")
+    
+    # ถ้ามีเศษส่วน
+    if '/' in val_str:
+        parts = val_str.split('/')
+        if len(parts) == 2:
+            numerator = float(parts[0].strip())
+            denominator = float(parts[1].strip())
+            if denominator == 0:
+                raise ValueError(f"ตัวหารเป็น 0 ไม่ได้: {val_str}")
+            return numerator / denominator
+        else:
+            raise ValueError(f"รูปแบบเศษส่วนไม่ถูกต้อง: {val_str}")
+    
+    return float(val_str)
+
 def parse_matrix_string(data_str):
     # แปลงข้อความจากการ Copy Excel ให้เป็น Numpy Array
+    # รองรับจำนวนเต็ม ทศนิยม เศษส่วน (เช่น 1/2) และค่ารูท (เช่น sqrt(2), √3)
     rows = []
     lines = data_str.strip().split('\n')
     for line in lines:
@@ -215,7 +269,7 @@ def parse_matrix_string(data_str):
         if len(parts) == 1: 
              parts = line.strip().split()
              
-        row = [float(x) for x in parts if x.strip() != '']
+        row = [parse_number(x) for x in parts if x.strip() != '']
         if row:
             rows.append(row)
     return np.array(rows)
@@ -235,16 +289,50 @@ if __name__ == "__main__":
         B = parse_matrix_string(data['matrix_b'])
 
         # เรียกใช้อัลกอริทึม
-        x, y, p, q, F = algorithm_2_global_search(A, B)
+        x, y, p, q, F, local_solutions, global_idx = algorithm_2_global_search(A, B)
 
-        # เตรียมผลลัพธ์เป็น Dictionary
+        def normalize_probabilities(probs):
+            n = len(probs)
+            rounded = np.zeros(n)
+            for i in range(n):
+                # Round to 4 decimal places with Half-Up logic
+                val = math.floor((probs[i] + 1e-10) * 10000 + 0.5) / 10000.0
+                rounded[i] = max(0.0, val)
+                
+            # Adjust the largest value to ensure sum == 1.0000 exactly
+            diff = 1.0 - np.sum(rounded)
+            if abs(diff) > 1e-9 and np.sum(rounded) > 0:
+                max_idx = np.argmax(rounded)
+                rounded[max_idx] += diff
+                rounded[max_idx] = math.floor((rounded[max_idx] + 1e-10) * 10000 + 0.5) / 10000.0
+            
+            return rounded.tolist()
+
+        # เตรียม local solutions สำหรับ JSON
+        local_sols_json = []
+        for i, sol in enumerate(local_solutions):
+            local_sols_json.append({
+                'index': i + 1,
+                'F': sol['F'],
+                'p': sol['p'],
+                'q': sol['q'],
+                'x': normalize_probabilities(sol['x']),
+                'y': normalize_probabilities(sol['y']),
+                'source': sol['source'],
+                'gamma': sol['gamma'],
+                'is_global': (i == global_idx)
+            })
+
+        # เตรียมผลลัพธ์เป็น Dictionary และแปลงให้ x, y ถูกต้อง
         result = {
             "status": "success",
             "F": F,
             "p": p,
             "q": q,
-            "x": x.tolist(),
-            "y": y.tolist()
+            "x": normalize_probabilities(x),
+            "y": normalize_probabilities(y),
+            "local_solutions": local_sols_json,
+            "global_solution_index": global_idx + 1
         }
 
     except Exception as e:
