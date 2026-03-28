@@ -44,7 +44,7 @@
 
     <!-- Animated Whale -->
     <div class="whale-container">
-        <img class="whale-svg" src="giphy.gif" alt="Swimming Whale">
+        <img class="whale-svg" src="giphy.gif" alt="Flying Bee">
     </div>
 
     <div class="main-container hero-section">
