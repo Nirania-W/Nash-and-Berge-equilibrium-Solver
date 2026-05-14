@@ -40,12 +40,13 @@ def get_gamma_bounds(A, B):
     return min(vals), max(vals)
 
 # --- 3. Algorithm 1: Local Search ---
+
 def algorithm_1_local_search(A, B, y_start, max_iter=100, tol=1e-8):
     m, n = A.shape
     y_s = y_start.copy()
-    q_s = np.max(A.dot(y_s))
+    q_s = np.max(B.dot(y_s))
     
-    # กำหนดค่าเริ่มต้นกัน Error
+    # กำหนดค่าเริ่มต้น
     x_next = np.zeros(m)
     p_next = 0
     y_next = y_s
@@ -58,8 +59,9 @@ def algorithm_1_local_search(A, B, y_start, max_iter=100, tol=1e-8):
         vec_obj_x = -1 * (A + B).dot(y_s)
         c1 = np.concatenate((vec_obj_x, [1]))
         
-        # Constraint: x^T B - p <= 0
-        A_ub1 = np.hstack((B.T, -np.ones((n, 1))))
+        # Constraint: x^T A - p <= 0
+        # A_ub = [A.T, -1]
+        A_ub1 = np.hstack((A.T, -np.ones((n, 1))))
         b_ub1 = np.zeros(n)
         
         # Equality: sum(x) = 1
@@ -77,8 +79,9 @@ def algorithm_1_local_search(A, B, y_start, max_iter=100, tol=1e-8):
         vec_obj_y = -1 * x_next.dot(A + B)
         c2 = np.concatenate((vec_obj_y, [1]))
         
-        # Constraint: Ay - q <= 0
-        A_ub2 = np.hstack((A, -np.ones((m, 1))))
+        # Constraint: B y - q <= 0
+        # A_ub = [B, -1]
+        A_ub2 = np.hstack((B, -np.ones((m, 1))))
         b_ub2 = np.zeros(m)
         
         # Equality: sum(y) = 1
