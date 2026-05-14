@@ -43,13 +43,13 @@ def get_gamma_bounds(A, B):
 def algorithm_1_local_search(A, B, y_start, max_iter=100, tol=1e-8):
     m, n = A.shape
     y_s = y_start.copy()
-    q_s = np.max(B.dot(y_s))
+    q_s = 0
     
-    # กำหนดค่าเริ่มต้น
+    # กำหนดค่าเริ่มต้นกัน Error
     x_next = np.zeros(m)
     p_next = 0
     y_next = y_s
-    q_next = q_s
+    q_next = 0
     F_val = 0
     
     for s in range(max_iter):
@@ -58,9 +58,8 @@ def algorithm_1_local_search(A, B, y_start, max_iter=100, tol=1e-8):
         vec_obj_x = -1 * (A + B).dot(y_s)
         c1 = np.concatenate((vec_obj_x, [1]))
         
-        # Constraint: x^T A - p <= 0
-        # A_ub = [A.T, -1]
-        A_ub1 = np.hstack((A.T, -np.ones((n, 1))))
+        # Constraint: x^T B - q <= 0
+        A_ub1 = np.hstack((B.T, -np.ones((n, 1))))
         b_ub1 = np.zeros(n)
         
         # Equality: sum(x) = 1
@@ -71,16 +70,15 @@ def algorithm_1_local_search(A, B, y_start, max_iter=100, tol=1e-8):
         res1 = linprog(c1, A_ub=A_ub1, b_ub=b_ub1, A_eq=A_eq1, b_eq=b_eq1, bounds=bounds1, method='highs')
         if not res1.success: break
         x_next = res1.x[:m]
-        p_next = res1.x[m]
+        q_next = res1.x[m]
 
         # Step 2: Solve for y, q
         # Obj coeff for y: x_next(A+B)
         vec_obj_y = -1 * x_next.dot(A + B)
         c2 = np.concatenate((vec_obj_y, [1]))
         
-        # Constraint: B y - q <= 0
-        # A_ub = [B, -1]
-        A_ub2 = np.hstack((B, -np.ones((m, 1))))
+        # Constraint: Ay - p <= 0
+        A_ub2 = np.hstack((A, -np.ones((m, 1))))
         b_ub2 = np.zeros(m)
         
         # Equality: sum(y) = 1
@@ -91,7 +89,7 @@ def algorithm_1_local_search(A, B, y_start, max_iter=100, tol=1e-8):
         res2 = linprog(c2, A_ub=A_ub2, b_ub=b_ub2, A_eq=A_eq2, b_eq=b_eq2, bounds=bounds2, method='highs')
         if not res2.success: break
         y_next = res2.x[:n]
-        q_next = res2.x[n]
+        p_next = res2.x[n]
 
         # Step 3: Check convergence
         F_val = calc_F_linear(x_next, y_next, p_next, q_next, A, B)
